@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -369,7 +370,12 @@
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const SUPABASE_URL = 'https://tjfxqsranniptgqhjjdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqZnhxc3Jhbm5pcHRncWhqamRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNzQ0ODMsImV4cCI6MjA5NjY1MDQ4M30.M8s7knZyBGbbo3NcWaRTbxx7NU2YDPbYgCD56U6m7rQ';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     const input = document.getElementById('task-input');
     const addBtn = document.getElementById('add-btn');
     const taskList = document.getElementById('task-list');
@@ -379,19 +385,40 @@
     const progressText = document.getElementById('progress-text');
     const progressFraction = document.getElementById('progress-fraction');
 
-    let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+    let tasks = [];
     let currentFilter = 'all';
 
-    function save() {
-      localStorage.setItem('tasks', JSON.stringify(tasks));
+    async function loadTasks() {
+      const { data, error } = await sb
+        .from('tasks')
+        .select('*')
+        .order('created_at', { ascending: true });
+      if (error) { console.error(error); return; }
+      tasks = data;
+      render();
     }
 
-    function addTask() {
+    async function addTask() {
       const text = input.value.trim();
       if (!text) return;
-      tasks.push({ id: Date.now(), text, done: false });
       input.value = '';
-      save();
+      const { data, error } = await sb
+        .from('tasks')
+        .insert({ text, done: false })
+        .select()
+        .single();
+      if (error) { console.error(error); return; }
+      tasks.push(data);
+      render();
+    }
+
+    async function toggleDone(task, checked) {
+      const { error } = await sb
+        .from('tasks')
+        .update({ done: checked })
+        .eq('id', task.id);
+      if (error) { console.error(error); return; }
+      task.done = checked;
       render();
     }
 
@@ -425,11 +452,7 @@
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = task.done;
-        cb.addEventListener('change', () => {
-          task.done = cb.checked;
-          save();
-          render();
-        });
+        cb.addEventListener('change', () => toggleDone(task, cb.checked));
 
         const cbCustom = document.createElement('span');
         cbCustom.className = 'cb-custom';
@@ -460,7 +483,7 @@
     addBtn.addEventListener('click', addTask);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
 
-    render();
+    loadTasks();
   </script>
 </body>
 </html>
