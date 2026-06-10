@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ギャルのやることリスト♡</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      display: grid;
+      grid-template-rows: auto 1fr;
+
+      background-color: #1a1a1a;
+      background-image:
+        radial-gradient(ellipse 18px 12px at 20px 20px, #3a1a00 70%, transparent 70%),
+        radial-gradient(ellipse 14px 9px  at 55px 50px, #2e1500 70%, transparent 70%),
+        radial-gradient(ellipse 16px 11px at 80px 15px, #3a1a00 70%, transparent 70%),
+        radial-gradient(ellipse 12px 8px  at 10px 55px, #2e1500 70%, transparent 70%),
+        radial-gradient(ellipse 10px 7px  at 45px 80px, #3a1a00 70%, transparent 70%),
+        radial-gradient(circle 5px at 20px 20px, #c8860a 55%, transparent 56%),
+        radial-gradient(circle 4px at 55px 50px, #c8860a 55%, transparent 56%),
+        radial-gradient(circle 5px at 80px 15px, #c8860a 55%, transparent 56%),
+        radial-gradient(circle 4px at 10px 55px, #c8860a 55%, transparent 56%),
+        radial-gradient(circle 3px at 45px 80px, #c8860a 55%, transparent 56%);
+      background-size: 90px 90px;
+    }
+
+    /* ==============================
+       ヘッダー（タイトルバー）
+    ============================== */
+    header {
+      background: linear-gradient(135deg, #ff1493, #ff69b4, #ff1493);
+      border-bottom: 4px solid #111;
+      box-shadow: 0 6px 0 #111, 0 0 40px rgba(255,20,147,.5);
+      padding: 22px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦  ✦';
+      position: absolute;
+      bottom: 6px; left: 0; right: 0;
+      font-size: 9px;
+      color: rgba(255,255,255,.35);
+      letter-spacing: 8px;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 3px 3px 0 #a0005a, 0 0 24px rgba(255,255,255,.5);
+      letter-spacing: 2px;
+      white-space: nowrap;
+    }
+    .header-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,.9);
+      font-weight: 700;
+      text-align: right;
+      line-height: 1.7;
+    }
+    #task-count {
+      background: rgba(0,0,0,.25);
+      border: 2px solid rgba(255,255,255,.4);
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #fff;
+      white-space: nowrap;
+      letter-spacing: .5px;
+    }
+
+    /* ==============================
+       メインレイアウト（2カラム）
+    ============================== */
+    main {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 0;
+      min-height: 0;
+    }
+
+    /* ==============================
+       左カラム（入力・フィルター）
+    ============================== */
+    .left-col {
+      border-right: 4px solid #111;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background: #111;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 900;
+      color: #ff6ec7;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    #task-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: inherit;
+      font-weight: 700;
+      border: 3px solid #444;
+      border-radius: 12px;
+      background: #1f1f1f;
+      color: #fff;
+      box-shadow: 4px 4px 0 #ff1493;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      margin-bottom: 10px;
+    }
+    #task-input:focus {
+      border-color: #ff1493;
+      box-shadow: 4px 4px 0 #ff69b4;
+    }
+    #task-input::placeholder { color: #666; font-weight: 400; }
+
+    #add-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-family: inherit;
+      font-weight: 900;
+      background: #ff1493;
+      color: #fff;
+      border: 3px solid #fff;
+      border-radius: 12px;
+      box-shadow: 4px 4px 0 #fff;
+      cursor: pointer;
+      text-shadow: 1px 1px 0 #a0005a;
+      transition: transform .1s, box-shadow .1s, background .1s;
+      letter-spacing: 1px;
+    }
+    #add-btn:hover { background: #e0007a; }
+    #add-btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 #fff; }
+
+    /* フィルター */
+    #filter-area {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .filter-btn {
+      width: 100%;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 900;
+      border: 3px solid #333;
+      border-radius: 10px;
+      background: #1f1f1f;
+      color: #888;
+      cursor: pointer;
+      text-align: left;
+      letter-spacing: 1px;
+      transition: transform .1s, box-shadow .1s, background .1s, color .1s;
+    }
+    .filter-btn:hover { background: #2a2a2a; color: #ccc; }
+    .filter-btn:active { transform: translate(2px,2px); }
+    .filter-btn[data-filter="all"].active    { background: #ff1493; border-color: #fff; color: #fff; box-shadow: 3px 3px 0 #fff; }
+    .filter-btn[data-filter="active"].active { background: #ff6ec7; border-color: #fff; color: #111; box-shadow: 3px 3px 0 #fff; }
+    .filter-btn[data-filter="done"].active   { background: #c8860a; border-color: #fff; color: #fff; box-shadow: 3px 3px 0 #fff; }
+
+    /* 完了済みバー */
+    .progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: #888;
+    }
+    .progress-bar-bg {
+      height: 10px;
+      background: #333;
+      border-radius: 99px;
+      border: 2px solid #444;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff1493, #c8860a);
+      border-radius: 99px;
+      transition: width .4s ease;
+    }
+
+    /* ==============================
+       右カラム（タスクリスト）
+    ============================== */
+    .right-col {
+      padding: 32px 36px;
+      overflow-y: auto;
+    }
+
+    #task-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+    #task-list li {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      border: 3px solid #333;
+      border-radius: 14px;
+      background: #1f1f1f;
+      box-shadow: 4px 4px 0 #000;
+      transition: transform .1s, box-shadow .1s, border-color .1s;
+      cursor: default;
+    }
+    #task-list li:hover {
+      transform: translate(-2px,-2px);
+      box-shadow: 6px 6px 0 #ff1493;
+      border-color: #ff1493;
+    }
+    #task-list li.done {
+      background: #161616;
+      border-color: #2a2a2a;
+      box-shadow: 4px 4px 0 #000;
+    }
+    #task-list li.done:hover {
+      transform: none;
+      box-shadow: 4px 4px 0 #000;
+      border-color: #2a2a2a;
+    }
+
+    /* チェックボックス */
+    .cb-wrap {
+      position: relative;
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+    }
+    .cb-wrap input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      margin: 0;
+    }
+    .cb-custom {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #ff1493;
+      border-radius: 8px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: background .15s, border-color .15s;
+      pointer-events: none;
+    }
+    .cb-wrap input:checked + .cb-custom {
+      background: #c8860a;
+      border-color: #c8860a;
+    }
+    .cb-custom .check-icon { display: none; }
+    .cb-wrap input:checked + .cb-custom .check-icon { display: block; }
+
+    span.task-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f0f0f0;
+      flex: 1;
+      word-break: break-all;
+    }
+    li.done span.task-text {
+      text-decoration: line-through;
+      color: #444;
+    }
+
+    /* 空状態 */
+    #empty-msg {
+      display: none;
+      text-align: center;
+      padding: 60px 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: #ff69b4;
+      line-height: 2;
+    }
+    #empty-msg .empty-icon { font-size: 3rem; display: block; margin-bottom: 12px; }
+    #empty-msg.visible { display: block; }
+
+    /* ==============================
+       スマホ対応
+    ============================== */
+    @media (max-width: 700px) {
+      header { padding: 18px 20px; flex-wrap: wrap; }
+      h1 { font-size: 1.4rem; }
+      main { grid-template-columns: 1fr; }
+      .left-col { border-right: none; border-bottom: 4px solid #111; padding: 24px 20px; }
+      #filter-area { flex-direction: row; }
+      .filter-btn { text-align: center; }
+      .right-col { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>💅 やることリスト 💅</h1>
+    <div class="header-sub">
+      ちゃんとやり切ったらえらすぎ♡<br>
+      あたしならできる！！絶対！！
+    </div>
+    <div id="task-count">0 件中 0 件完了♡</div>
+  </header>
+
+  <main>
+    <!-- 左カラム -->
+    <div class="left-col">
+      <div>
+        <p class="section-label">✦ やること追加</p>
+        <input type="text" id="task-input" placeholder="やること書いちゃって♡" />
+        <button id="add-btn">追加する♡</button>
+      </div>
+
+      <div>
+        <p class="section-label">✦ しぼりこみ</p>
+        <div id="filter-area">
+          <button class="filter-btn active" data-filter="all">💗 ぜんぶ見る</button>
+          <button class="filter-btn" data-filter="active">🫧 まだの子</button>
+          <button class="filter-btn" data-filter="done">💛 おわった子</button>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <p class="section-label">✦ 進み具合</p>
+        <div class="progress-label">
+          <span id="progress-text">0％ 完了</span>
+          <span id="progress-fraction">0 / 0</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右カラム -->
+    <div class="right-col">
+      <ul id="task-list"></ul>
+      <p id="empty-msg">
+        <span class="empty-icon">💅</span>
+        やること何もナシ！ヤバ笑<br>
+        今日も最高じゃん♡
+      </p>
+    </div>
+  </main>
+
+  <script>
+    const input = document.getElementById('task-input');
+    const addBtn = document.getElementById('add-btn');
+    const taskList = document.getElementById('task-list');
+    const emptyMsg = document.getElementById('empty-msg');
+    const taskCount = document.getElementById('task-count');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const progressFraction = document.getElementById('progress-fraction');
+
+    let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+    let currentFilter = 'all';
+
+    function save() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function addTask() {
+      const text = input.value.trim();
+      if (!text) return;
+      tasks.push({ id: Date.now(), text, done: false });
+      input.value = '';
+      save();
+      render();
+    }
+
+    function render() {
+      taskList.innerHTML = '';
+
+      const filtered = tasks.filter(task => {
+        if (currentFilter === 'active') return !task.done;
+        if (currentFilter === 'done') return task.done;
+        return true;
+      });
+
+      const total = tasks.length;
+      const doneCount = tasks.filter(t => t.done).length;
+      const pct = total ? Math.round(doneCount / total * 100) : 0;
+
+      taskCount.textContent = `${total} 件中 ${doneCount} 件完了♡`;
+      progressBar.style.width = pct + '%';
+      progressText.textContent = pct + '％ 完了';
+      progressFraction.textContent = `${doneCount} / ${total}`;
+
+      emptyMsg.classList.toggle('visible', filtered.length === 0);
+
+      filtered.forEach(task => {
+        const li = document.createElement('li');
+        if (task.done) li.classList.add('done');
+
+        const cbWrap = document.createElement('label');
+        cbWrap.className = 'cb-wrap';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = task.done;
+        cb.addEventListener('change', () => {
+          task.done = cb.checked;
+          save();
+          render();
+        });
+
+        const cbCustom = document.createElement('span');
+        cbCustom.className = 'cb-custom';
+        cbCustom.innerHTML = '<span class="check-icon">★</span>';
+
+        cbWrap.appendChild(cb);
+        cbWrap.appendChild(cbCustom);
+
+        const span = document.createElement('span');
+        span.className = 'task-text';
+        span.textContent = task.text;
+
+        li.appendChild(cbWrap);
+        li.appendChild(span);
+        taskList.appendChild(li);
+      });
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentFilter = btn.dataset.filter;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        render();
+      });
+    });
+
+    addBtn.addEventListener('click', addTask);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+    render();
+  </script>
+</body>
+</html>
